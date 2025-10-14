@@ -4,3 +4,5 @@ __pycache__/
 *.pyc
 *.pyo
 .ipynb_checkpoints/
+/model.joblib
+/metrics.csv
