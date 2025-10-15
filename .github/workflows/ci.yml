@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Checkout the repo coorectly
+    # 1. Checkout the repo coorectly ok
     - name: Checkout Repo
       uses: actions/checkout@v3
 
@@ -23,7 +23,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.10.0
+        python-version: '3.10'
 
     # 3. Install dependencies
     - name: Install dependencies
@@ -47,4 +47,3 @@ jobs:
       if: github.event_name == 'pull_request'
       run: |
         cml-send-comment metrics_test.csv
-
