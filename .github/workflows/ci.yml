@@ -60,7 +60,7 @@ jobs:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Install CML
-          npm install -g cml@0.18.0
+          npm install -g cml@1.4.233
           # Create report
           echo "### 🧪 Test Results" > report.md
           echo "" >> report.md
