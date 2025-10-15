@@ -1,63 +1,47 @@
-name: IRIS CI Pipeline
+name: Train model and report with CML
 
 on:
   push:
-    branches:
-      - dev
-      - main
-  pull_request:
-    branches:
-      - dev
-      - main
-
-permissions:
-  contents: read
-  pull-requests: write  # 👈 Required for CML to comment on PRs
+    branches: [ main ]
 
 jobs:
-  build-and-test:
+  train:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repo
-      - name: Checkout Repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Setup Python
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      
-      # 3. Cache pip dependencies
-      - name: Cache pip dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
 
-      # 4. Install dependencies (stable and clean)
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install "dvc[gdrive]" pytest==7.4.4 @dvcorg/cml@latest
+          pip install pytest
+          pip install git+https://github.com/iterative/cml.git
 
-      # 5. Pull DVC data & model
-      - name: Pull DVC Data & Model
-        run: dvc pull
+      - name: Run training script
+        run: |
+          python src/train.py > report.txt
+          echo "✅ Model training completed!" >> report.txt
 
-      # 6. Run tests
-      - name: Run Test Pipeline
-        run: pytest tests/test_pipeline.py
+      - name: Run tests
+        run: pytest tests/ > test_results.txt
 
-      # 7. Generate and Post CML Report
-      - name: Generate and Post CML Report
-        if: github.event_name == 'pull_request'
+      - name: Create CML report
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "### 🧪 Test Results" > report.md
-          echo "" >> report.md
-          cat metrics_test.csv >> report.md
-          npx cml comment create report.md
+          echo "## 🧠 Model Training Report" > cml_report.md
+          echo "### 🔹 Training Output" >> cml_report.md
+          cat report.txt >> cml_report.md
+
+          echo "### 🔹 Test Results" >> cml_report.md
+          cat test_results.txt >> cml_report.md
+
+          # Send the CML report as a comment on the Pull Request
+          npx cml comment create cml_report.md
