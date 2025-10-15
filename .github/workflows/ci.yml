@@ -56,7 +56,7 @@ jobs:
       - name: Generate and Post CML Report
         if: github.event_name == 'pull_request'
         env:
-          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           # Create report
           echo "### 🧪 Test Results" > report.md
