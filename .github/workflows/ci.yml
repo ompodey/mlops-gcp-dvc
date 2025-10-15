@@ -10,6 +10,10 @@ on:
       - dev
       - main
 
+permissions:
+  contents: read
+  pull-requests: write  # 👈 Required for CML to comment on PRs
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -24,7 +28,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
+      
       # 3. Cache pip dependencies
       - name: Cache pip dependencies
         uses: actions/cache@v3
@@ -32,26 +36,22 @@ jobs:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
 
-      # 4. Install dependencies
+      # 4. Install dependencies (stable and clean)
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install "dvc[gdrive]" pytest==7.4.4
+          pip install "dvc[gdrive]" pytest==7.4.4 @dvcorg/cml@latest
 
-      # 5. Install CML via npm (not pip)
-      - name: Install CML CLI
-        run: npm install -g @dvcorg/cml
-
-      # 6. Pull DVC data & model
+      # 5. Pull DVC data & model
       - name: Pull DVC Data & Model
         run: dvc pull
 
-      # 7. Run tests
+      # 6. Run tests
       - name: Run Test Pipeline
         run: pytest tests/test_pipeline.py
 
-      # 8. Generate and Post CML Report
+      # 7. Generate and Post CML Report
       - name: Generate and Post CML Report
         if: github.event_name == 'pull_request'
         env:
@@ -60,4 +60,4 @@ jobs:
           echo "### 🧪 Test Results" > report.md
           echo "" >> report.md
           cat metrics_test.csv >> report.md
-          cml comment create report.md
+          npx cml comment create report.md
