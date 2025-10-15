@@ -59,7 +59,11 @@ jobs:
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Install CML
+          npm install -g cml@0.9.7
+          # Create report
           echo "### 🧪 Test Results" > report.md
           echo "" >> report.md
           cat metrics_test.csv >> report.md
-          npx cml comment create report.md
+          # Post PR comment
+          cml comment create report.md
