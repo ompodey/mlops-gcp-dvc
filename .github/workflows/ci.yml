@@ -32,22 +32,26 @@ jobs:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
 
-      # 4. Install dependencies (stable and clean)
+      # 4. Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install "dvc[gdrive]" pytest==7.4.4 cml==0.9.7
+          pip install "dvc[gdrive]" pytest==7.4.4
 
-      # 5. Pull DVC data & model
+      # 5. Install CML via npm (not pip)
+      - name: Install CML CLI
+        run: npm install -g @dvcorg/cml
+
+      # 6. Pull DVC data & model
       - name: Pull DVC Data & Model
         run: dvc pull
 
-      # 6. Run tests
+      # 7. Run tests
       - name: Run Test Pipeline
         run: pytest tests/test_pipeline.py
 
-      # 7. Generate and Post CML Report
+      # 8. Generate and Post CML Report
       - name: Generate and Post CML Report
         if: github.event_name == 'pull_request'
         env:
@@ -56,4 +60,4 @@ jobs:
           echo "### 🧪 Test Results" > report.md
           echo "" >> report.md
           cat metrics_test.csv >> report.md
-          npx cml comment create report.md
+          cml comment create report.md
