@@ -4,7 +4,7 @@ from sklearn.tree import DecisionTreeClassifier as DC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn import metrics
-
+#ok
 
 data = pd.read_csv("data/iris.csv")
 
