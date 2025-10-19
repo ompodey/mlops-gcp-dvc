@@ -4,7 +4,7 @@ from sklearn.tree import DecisionTreeClassifier as DC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn import metrics
-#ok
+
 
 data = pd.read_csv("data/iris.csv")
 
@@ -17,7 +17,7 @@ X_test = test[['sepal_length','sepal_width','petal_length','petal_width']]
 y_test = test.species
 
 
-model = DC(max_depth = 4, random_state = 1)
+model = DC(max_depth = 3, random_state = 1)
 model.fit(X_train,y_train)
 pred= model.predict(X_test)
 acc=accuracy_score( pred, y_test)
